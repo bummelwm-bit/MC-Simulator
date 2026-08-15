@@ -1,0 +1,50 @@
+<!doctype html><html lang="de"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Bastards of Hell – MC Empire 0.3</title>
+<style>
+*{box-sizing:border-box}body{margin:0;background:#090909;color:#eee;font-family:Arial,sans-serif}header{background:#151515;padding:15px;border-bottom:2px solid #8d1111;position:sticky;top:0;z-index:5}h1{font-size:21px;margin:0}.wrap{max-width:1000px;margin:auto;padding:12px}.sub{color:#999;font-size:12px}.stats{display:grid;grid-template-columns:repeat(5,1fr);gap:7px}.card,.panel{background:#171717;border:1px solid #333;border-radius:10px;padding:11px;margin-bottom:10px}.stat b{font-size:18px;display:block}.label{font-size:11px;color:#999}.tabs{display:flex;gap:5px;overflow:auto;margin:10px 0}.tabs button{white-space:nowrap}.tab{display:none}.tab.active{display:block}button{background:#8e1616;border:0;color:#fff;padding:10px 12px;border-radius:8px;margin:3px;cursor:pointer;font-weight:bold}button:disabled{background:#3a3a3a;color:#777}.grid{display:grid;grid-template-columns:1.1fr .9fr;gap:10px}.map{height:400px;background:#202820;border-radius:10px;position:relative;overflow:hidden;border:1px solid #444;background-image:linear-gradient(25deg,transparent 48%,#394039 49%,#394039 50%,transparent 51%),linear-gradient(110deg,transparent 48%,#394039 49%,#394039 50%,transparent 51%)}.region{position:absolute;border:2px solid #777;background:#222d;min-width:90px;text-align:center;padding:13px 7px;border-radius:8px;cursor:pointer}.owned{border-color:#9b1717;background:#541414}.locked{opacity:.5}.bar{height:8px;background:#333;border-radius:6px;overflow:hidden}.fill{height:100%;background:#9b1717}.log{height:180px;overflow:auto;background:#080808;padding:8px;border-radius:8px;font-size:13px}.good{color:#80dc91}.bad{color:#ff7777}.gold{color:#e2bd68}.choice{border:1px solid #333;padding:10px;border-radius:8px;margin:6px 0}.choice b{display:block}@media(max-width:700px){.stats{grid-template-columns:repeat(2,1fr)}.grid{grid-template-columns:1fr}.map{height:330px}}
+</style></head><body>
+<header><div class="wrap"><h1>🏍️ BASTARDS OF HELL – MC EMPIRE</h1><div class="sub">Version 0.3 • Vom Garagenclub zum großen MC</div></div></header>
+<div class="wrap">
+<div class="stats"><div class="card stat"><span class="label">Kasse</span><b id="money">500 €</b></div><div class="card stat"><span class="label">Mitglieder</span><b id="members">2</b></div><div class="card stat"><span class="label">Ruf</span><b id="rep">0</b></div><div class="card stat"><span class="label">Gebiete</span><b id="zones">1/6</b></div><div class="card stat"><span class="label">Clubhaus</span><b id="club">0</b></div></div>
+<div class="tabs"><button onclick="tab('mc')">🏍️ Mein MC</button><button onclick="tab('map')">🌍 Karte</button><button onclick="tab('biz')">💰 Geschäfte</button><button onclick="tab('members')">👥 Mitglieder</button></div>
+
+<section id="mc" class="tab active"><div class="grid"><div><div class="panel"><h2>🏠 Clubhaus</h2><div id="clubtext">Noch kein Clubhaus. Der MC hat nur einen Treffpunkt.</div><button id="buyClub" onclick="buyClub()">Garage mieten – 300 €</button><button id="upClub" onclick="upgrade()" disabled>Ausbauen – 700 €</button></div>
+<div class="panel"><h2>📈 Clubentwicklung</h2><p>Ruf</p><div class="bar"><div class="fill" id="repbar" style="width:0%"></div></div><p class="sub">Mit mehr Ruf werden neue Gebiete und Möglichkeiten freigeschaltet.</p></div></div>
+<div><div class="panel"><h2>📜 Clubchronik</h2><div class="log" id="log"></div></div><div class="panel"><h2>🎯 Nächster Meilenstein</h2><div id="goal"></div></div></div></div></section>
+
+<section id="map" class="tab"><div class="panel"><h2>🌍 Einflusskarte</h2><p class="sub">Du startest in einem einzigen Gebiet. Neue Regionen kosten Geld und benötigen Ruf.</p><div class="map">
+<div class="region owned" style="left:8%;top:48%" id="r0">Startgebiet</div>
+<div class="region locked" style="left:35%;top:20%" id="r1">Nord</div>
+<div class="region locked" style="left:62%;top:38%" id="r2">Ost</div>
+<div class="region locked" style="left:30%;top:65%" id="r3">Süd</div>
+<div class="region locked" style="left:70%;top:72%" id="r4">West</div>
+<div class="region locked" style="left:47%;top:48%" id="r5">Zentrum</div></div></div></section>
+
+<section id="biz" class="tab"><div class="grid"><div class="panel"><h2>🟢 Legale Geschäfte</h2><div class="choice"><b>🔧 Motorradwerkstatt</b>500 € • bringt regelmäßig Einkommen<button id="work" onclick="buyBiz('work')">Kaufen</button></div><div class="choice"><b>🍺 Club-Bar</b>900 € • erhöht Einnahmen und Ruf<button id="bar" onclick="buyBiz('bar')">Kaufen</button></div><div class="choice"><b>🚛 Abschleppdienst</b>1400 € • höheres Einkommen<button id="tow" onclick="buyBiz('tow')">Kaufen</button></div></div>
+<div class="panel"><h2>🔴 Illegale Geschäfte</h2><p class="sub">Rein fiktive Spielmechanik: riskante Aufträge mit abstrakten Ergebnissen, ohne reale Anleitungen.</p><div class="choice"><b>Schwarzmarkt-Auftrag</b>300 € Einsatz • Erfolg bringt hohen Spielgewinn<button id="black" onclick="black()" disabled>Freischalten: Ruf 10 + Clubhaus</button></div></div></div></section>
+
+<section id="members" class="tab"><div class="panel"><h2>👥 Mitglieder</h2><p>Mitglieder: <b id="mcnt">2</b></p><div id="memberList"></div><button onclick="recruit()">Neues Mitglied anwerben – 250 €</button></div></section>
+</div>
+<script>
+let s={money:500,members:2,rep:0,zones:1,club:0,biz:{},names:[['Mike „Wrench“','Mechanik',5],['Tom „Road“','Fahren',4]]};
+const $=x=>document.getElementById(x);function tab(x){document.querySelectorAll('.tab').forEach(e=>e.classList.remove('active'));$(x).classList.add('active')}
+function log(t,c=''){ $('log').innerHTML='<div class="'+c+'">'+t+'</div>'+$('log').innerHTML;update()}
+function update(){
+$('money').textContent=s.money.toLocaleString('de-DE')+' €';$('members').textContent=s.members;$('mcnt').textContent=s.members;$('rep').textContent=s.rep;$('zones').textContent=s.zones+'/6';$('club').textContent=s.club;
+$('clubtext').innerHTML=s.club?`Clubhaus Stufe ${s.club}<br><span class="sub">Garage ${s.club>=2?'ausgebaut':'vorhanden'} • Ausbau schafft neue Möglichkeiten.</span>`:'Noch kein Clubhaus. Der MC hat nur einen Treffpunkt.';
+$('buyClub').disabled=s.club>0;$('upClub').disabled=!(s.club===1&&s.money>=700);
+['work','bar','tow'].forEach(x=>$(x).disabled=!!s.biz[x]||s.money<({work:500,bar:900,tow:1400}[x]));
+$('black').disabled=!(s.club&&s.rep>=10&&s.money>=300);$('black').textContent=s.club&&s.rep>=10?'Schwarzmarkt-Auftrag – 300 €':'Freischalten: Ruf 10 + Clubhaus';
+$('repbar').style.width=Math.min(100,s.rep*2)+'%';
+$('goal').innerHTML=s.club===0?'🏠 Baue dein erstes Clubhaus.' : s.zones<2?'🌍 Erreiche Ruf 15 und investiere 1.000 € in ein neues Gebiet.':s.members<5?'👥 Baue deinen Club auf mindestens 5 Mitglieder aus.':'🔥 Der MC wächst – erschließe weitere Gebiete und Geschäfte.';
+$('memberList').innerHTML=s.names.map((n,i)=>`<div class="choice"><b>${n[0]}</b>${n[1]} ⭐${n[2]} ${i<2?'':'<span class="sub">Neuzugang</span>'}</div>`).join('');
+}
+function buyClub(){s.money-=300;s.club=1;s.rep+=2;log('🏠 Erste Garage gemietet. Der MC hat jetzt eine Basis.','good')}
+function upgrade(){s.money-=700;s.club=2;s.rep+=5;log('🏠 Clubhaus auf Stufe 2 ausgebaut.','good')}
+function buyBiz(k){let c={work:500,bar:900,tow:1400}[k];if(s.money<c)return;s.money-=c;s.biz[k]=1;s.rep+=k==='bar'?5:3;let n={work:'Motorradwerkstatt',bar:'Club-Bar',tow:'Abschleppdienst'}[k];log('💰 '+n+' gekauft.','good');setTimeout(()=>{let inc={work:100,bar:160,tow:230}[k];s.money+=inc;log('📈 Geschäftseinnahmen: +'+inc+' €','gold')},900)}
+function recruit(){if(s.money<250)return;s.money-=250;s.members++;s.rep+=2;let pool=[['Jax „Bolt“','Schrauber',4],['Rico „Bear“','Organisation',4],['Sam „Viper“','Fahren',5],['Ben „Doc“','Erste Hilfe',4]];s.names.push(pool[(s.members-3)%pool.length]);log('👤 Ein neues Mitglied tritt dem MC bei.','good')}
+function black(){if(s.money<300)return;s.money-=300;if(Math.random()<.65){let g=700+Math.floor(Math.random()*600);s.money+=g;s.rep+=6;log('🔴 Auftrag erfolgreich: +'+g+' € / Ruf +6','gold')}else{s.rep=Math.max(0,s.rep-5);log('⚠️ Auftrag fehlgeschlagen: Ruf -5','bad')}}
+function zone(i,cost,need){if(s.rep<need||s.money<cost){log('🔒 Gebiet gesperrt: mehr Ruf oder Kapital nötig.','bad');return}s.money-=cost;s.zones++;s.rep+=8;$('r'+i).classList.remove('locked');$('r'+i).classList.add('owned');log('🌍 Neues Einflussgebiet erschlossen: '+$('r'+i).textContent,'good')}
+[['r1',1,1000,15],['r2',2,1700,25],['r3',3,2500,35],['r4',4,3500,50],['r5',5,5000,70]].forEach(a=>$(a[0]).onclick=()=>zone(a[1],a[2],a[3]));
+log('🏍️ Willkommen. Du beginnst ganz unten: 500 €, 2 Mitglieder, kein Clubhaus.','gold');update();
+</script></body></html>
