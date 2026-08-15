@@ -33,7 +33,7 @@ button:disabled{opacity:.45;cursor:not-allowed}
 <div class="top">
  <div class="logo">🏍️ MC SIMULATOR</div>
  <div class="topstats">💰 <span id="cash">500</span>$ · ⭐ <span id="rep">0</span> · 👥 <span id="members">2</span></div>
- <button class="secondary" onclick="openRace()">🏁 Rennen</button>
+ <button class="secondary" onclick="toggleMenu()">☰ Aktionen</button><button class="secondary" onclick="openRace()">🏁 Rennen</button>
 </div>
 <div class="layout">
 <aside class="panel left">
@@ -64,7 +64,7 @@ button:disabled{opacity:.45;cursor:not-allowed}
  <div class="bike" id="bike"></div>
 </main>
 
-<aside class="panel right">
+<aside class="panel right"><div style="position:sticky;top:0;z-index:10;background:#222;color:#fff;padding:7px;text-align:right"><button class="secondary" onclick="document.querySelector('.right').classList.remove('open')">▼ Karte zeigen</button></div>
  <div class="tabs"><button class="active" onclick="tab('club')">🏴 MC</button><button onclick="tab('business')">💼 Geschäfte</button><button onclick="tab('map')">🗺️ Gebiet</button></div>
  <div id="clubTab">
   <div class="card"><div class="stats">
@@ -110,6 +110,13 @@ var g={cash:500,rep:0,members:2,bikes:1,club:1,bar:false,work:false,garage:false
 function $(id){return document.getElementById(id)}
 function say(t){var x=$("toast");x.textContent=t;x.style.display="block";setTimeout(function(){x.style.display="none"},1800)}
 function log(t){$("log").innerHTML="<div>"+t+"</div>"+$("log").innerHTML}
+function toggleMenu(){
+  var r=document.querySelector(".right");
+  if(!r)return;
+  r.style.display = (r.style.display==="none" ? "block" : "block");
+  r.scrollTop=0;
+  document.querySelector(".right").classList.toggle("open");
+}
 function render(){
  $("cash").textContent=g.cash;$("cash2").textContent=g.cash;$("rep").textContent=g.rep;$("rep2").textContent=g.rep;$("members").textContent=g.members;$("members2").textContent=g.members;$("bikes").textContent=g.bikes;$("clubLevel").textContent=g.club;
  $("barPin").style.display=g.bar?"flex":"none";$("workPin").style.display=g.work?"flex":"none";$("garagePin").style.display=g.garage?"flex":"none";$("territoryPin").style.display=g.territory>1?"flex":"none";
