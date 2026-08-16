@@ -1,98 +1,714 @@
 <!doctype html>
 <html lang="de">
 <head>
-<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
-<title>MC Simulator</title>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1">
+<title>MC Simulator – City v5</title>
 <style>
-*{box-sizing:border-box}body{margin:0;background:#111;color:#eee;font-family:Arial,sans-serif}
-button{border:0;border-radius:7px;padding:10px 12px;font-weight:700;background:#b71919;color:#fff;cursor:pointer}
-button:disabled{opacity:.4}.top{height:58px;background:#b71919;display:flex;align-items:center;padding:0 10px;gap:8px;position:sticky;top:0;z-index:20}
-.logo{font-weight:900}.stats{margin-left:auto;font-weight:700}.app{display:grid;grid-template-columns:280px 1fr 300px;height:calc(100vh - 58px)}
-.side{overflow:auto;background:#eee;color:#222}.left{border-right:1px solid #555}.right{border-left:1px solid #555}.title{background:#292929;color:#fff;padding:10px;font-weight:900}.row{background:#fff;border-bottom:1px solid #ccc;padding:10px}.small{font-size:12px;color:#777}
-.map{position:relative;overflow:hidden;background:linear-gradient(#91a0a5 0 25%,#a8b48e 25%);min-height:500px}.ground{position:absolute;inset:-10%;background:repeating-linear-gradient(30deg,transparent 0 75px,#ded7bd 76px 80px),repeating-linear-gradient(120deg,transparent 0 100px,#d2ceb7 101px 105px);transform:rotateX(55deg) rotateZ(-7deg) scale(1.3)}
-.road{position:absolute;height:12px;background:#e2c26b;border:2px solid #fff8;z-index:2}.r1{left:-10%;width:120%;top:55%;transform:rotate(-8deg)}.r2{left:15%;width:100%;top:28%;transform:rotate(25deg)}
-.pin{position:absolute;z-index:5;transform:translate(-50%,-50%);width:44px;height:44px;border-radius:50%;border:3px solid #b71919;background:#fff;display:flex;align-items:center;justify-content:center;font-size:22px;box-shadow:0 2px 8px #0008}.club{animation:pulse 1.5s infinite}@keyframes pulse{50%{transform:translate(-50%,-50%) scale(1.14)}}
-.bike{position:absolute;z-index:7;width:30px;height:12px;background:#111;border-radius:7px;display:none}.bike:before,.bike:after{content:"";position:absolute;width:9px;height:9px;border-radius:50%;background:#000;border:1px solid #aaa;bottom:-4px}.bike:before{left:0}.bike:after{right:0}.bike.go{display:block;animation:ride 4s linear forwards}@keyframes ride{from{left:48%;top:55%}to{left:73%;top:33%}}
-.cards{display:grid;grid-template-columns:1fr 1fr;gap:6px;padding:8px}.card{background:#f3f3f3;color:#222;padding:8px;border:1px solid #ddd;border-radius:6px}.card b{display:block;font-size:18px}
-.actions{display:grid;grid-template-columns:1fr 1fr;gap:6px;padding:8px;background:#eee}.actions button{min-height:54px}.log{max-height:150px;overflow:auto;font-size:12px;color:#555}
-.modal{position:fixed;inset:0;background:#000c;z-index:50;display:none;align-items:center;justify-content:center;padding:15px}.modalbox{background:#eee;color:#222;border-radius:10px;width:min(600px,100%);padding:15px}.track{height:150px;background:#333;border-radius:8px;position:relative;overflow:hidden}.rider{position:absolute;width:42px;height:15px;background:#111;border-radius:8px;left:5px}.rider.you{background:#b71919}.rider.go{animation:race 2.7s linear forwards}@keyframes race{to{left:88%}}
-@media(max-width:900px){
-.app{display:block;height:auto}.left{display:none}
-.map{height:calc(100vh - 58px);min-height:500px}
-.right{display:none;position:fixed;left:0;right:0;bottom:0;z-index:30;max-height:72vh;border:0;border-radius:14px 14px 0 0;box-shadow:0 -8px 25px #0008}
-.right.open{display:block}
-.right .title{position:sticky;top:0;z-index:2}
-.actions{grid-template-columns:1fr 1fr}.stats{font-size:12px}
-.mobileMenu{display:block;margin-left:auto;background:#222}
-.closeMC{float:right;background:#555;padding:6px 9px}
+*{box-sizing:border-box}
+html,body{margin:0;width:100%;height:100%;overflow:hidden;font-family:Arial,Helvetica,sans-serif;background:#111}
+body{color:#fff}
+button{font:inherit;border:0;cursor:pointer}
+.top{
+ height:62px;position:fixed;left:0;right:0;top:0;z-index:100;
+ display:flex;align-items:center;gap:12px;padding:7px 12px;
+ background:linear-gradient(#24282c,#111416);
+ border-bottom:1px solid #555;box-shadow:0 2px 12px #000;
 }
-@media(min-width:901px){.mobileMenu,.closeMC{display:none}}
-.building{position:absolute;z-index:6;transform:translate(-50%,-50%);min-width:82px;padding:7px 9px;border-radius:8px;background:linear-gradient(#eee,#bbb);color:#171717;text-align:center;box-shadow:0 8px 12px #0008;border:2px solid #333;transition:.3s}.building .bicon{font-size:28px;line-height:28px}.building b{display:block;font-size:12px}.building small{font-size:10px}.clubBuilding{background:linear-gradient(#c93b31,#72211c);color:#fff;border-color:#42100d}.townBuilding{background:linear-gradient(#f1f1f1,#a5a5a5)}.building.l2{transform:translate(-50%,-50%) scale(1.12);min-width:96px}.building.l3{transform:translate(-50%,-50%) scale(1.28);min-width:112px}.building.l4{transform:translate(-50%,-50%) scale(1.45);min-width:130px}.building.l5{transform:translate(-50%,-50%) scale(1.65);min-width:150px}.levelbox{margin:0 8px 8px;padding:10px;border-radius:7px;background:#222;color:#eee;line-height:1.6}.levelbox span{font-weight:900;color:#ffcf55}.actions button span{font-size:11px}.levelbox b{color:#ffcf55}.levelbox div{font-size:13px}</style>
+.logo{font-weight:900;font-size:18px;letter-spacing:.4px}
+.logo small{display:block;color:#bbb;font-size:9px;letter-spacing:2px}
+.stats{margin-left:auto;display:flex;gap:8px;align-items:center;font-size:12px;font-weight:800}
+.stat{background:#25292d;border:1px solid #555;border-radius:8px;padding:7px 9px;white-space:nowrap}
+.menuBtn{background:#25292d;color:#fff;border:1px solid #666;border-radius:8px;padding:9px 11px;font-weight:800}.actions button.locked{opacity:.45;filter:grayscale(.7);cursor:not-allowed}
+
+.game{
+ position:absolute;inset:62px 0 0;
+ overflow:hidden;
+ background:
+   linear-gradient(#78909d 0 32%,#687a80 32% 33%,#394a3d 33% 100%);
+}
+
+/* distant city */
+.sky{position:absolute;inset:0 0 64% 0;overflow:hidden}
+.buildingFar{
+ position:absolute;bottom:0;background:linear-gradient(90deg,#263039,#52616b 48%,#222a30);
+ border:1px solid #65727a;box-shadow:inset 0 0 25px #0006;
+}
+.buildingFar:after{
+ content:"";position:absolute;inset:9px 7px;
+ background:repeating-linear-gradient(0deg,#d7e5eb22 0 4px,transparent 4px 12px),
+ repeating-linear-gradient(90deg,#d7e5eb18 0 8px,transparent 8px 22px);
+}
+.f1{left:-2%;width:13%;height:54%}.f2{left:9%;width:10%;height:76%}
+.f3{left:19%;width:14%;height:58%}.f4{left:33%;width:9%;height:90%}
+.f5{left:42%;width:15%;height:67%}.f6{left:56%;width:10%;height:82%}
+.f7{left:66%;width:15%;height:59%}.f8{left:81%;width:10%;height:77%}
+.f9{left:90%;width:13%;height:52%}
+
+/* city floor */
+.ground{
+ position:absolute;left:-8%;right:-8%;top:27%;bottom:-10%;
+ transform:skewY(-3deg);
+ background:
+   linear-gradient(90deg,transparent 0 24.5%,#d4d0c2 24.5% 25%,transparent 25% 49.5%,#d4d0c2 49.5% 50%,transparent 50% 74.5%,#d4d0c2 74.5% 75%,transparent 75%),
+   linear-gradient(0deg,transparent 0 24.5%,#d4d0c2 24.5% 25%,transparent 25% 49.5%,#d4d0c2 49.5% 50%,transparent 50% 74.5%,#d4d0c2 74.5% 75%,transparent 75%),
+   #65765b;
+}
+
+/* streets */
+.street{position:absolute;background:#303438;z-index:3;box-shadow:inset 0 2px #70707055,inset 0 -2px #111}
+.street.h{left:-5%;width:110%;height:78px}
+.street.v{top:28%;height:82%;width:78px}
+.ha{top:42%;transform:rotate(-2deg)}.hb{top:70%;transform:rotate(2deg)}
+.va{left:24%;transform:rotate(2deg)}.vb{left:66%;transform:rotate(-2deg)}
+.mark{position:absolute;z-index:4;background:#ddd9}
+.mark.h{height:3px;width:100%}.mark.v{height:100%;width:3px}
+.mha{top:calc(42% + 38px)}.mhb{top:calc(70% + 39px)}
+.mva{left:calc(24% + 38px);top:28%}.mvb{left:calc(66% + 38px);top:28%}
+
+/* blocks */
+.block{
+ position:absolute;z-index:5;background:#4d5d46;border:2px solid #334132;
+ box-shadow:0 4px 10px #0005;border-radius:3px;overflow:hidden
+}
+.block:before{
+ content:"";position:absolute;inset:10px;
+ background:linear-gradient(90deg,#6d7470 0 20%,transparent 20% 24%,#88847a 24% 47%,transparent 47% 52%,#6b716d 52% 78%,transparent 78% 82%,#8b8171 82%);
+ opacity:.8
+}
+.p1{left:2%;top:34%;width:19%;height:7%}.p2{left:69%;top:45%;width:27%;height:7%}
+.p3{left:3%;top:75%;width:18%;height:13%}.p4{left:75%;top:75%;width:20%;height:12%}
+
+/* parks */
+.park{position:absolute;z-index:6;background:#3b5c3b;border:5px solid #2d482f;border-radius:8px;box-shadow:inset 0 0 25px #203b22}
+.tree{position:absolute;z-index:7;width:25px;height:25px;background:#214727;border-radius:50%;box-shadow:0 9px 0 #19371e}
+.tree:after{content:"";position:absolute;left:11px;top:22px;width:4px;height:12px;background:#563d27}
+.pka{left:3%;top:34%;width:17%;height:7%}.pkb{right:4%;top:76%;width:17%;height:11%}
+
+/* buildings */
+.house{
+ position:absolute;z-index:15;transform:translate(-50%,-50%);
+ width:116px;min-height:91px;border:2px solid #242424;border-radius:4px;
+ box-shadow:0 12px 20px #0009;cursor:pointer;transition:.18s;
+ text-align:center;color:#fff;overflow:hidden
+}
+.house:hover{transform:translate(-50%,-50%) scale(1.07);z-index:25}
+.house .roof{height:17px;background:linear-gradient(#555,#222);border-bottom:2px solid #111}
+.house .facade{height:42px;padding:5px;background:linear-gradient(#b8b3a6,#716d66)}
+.house .windows{
+ height:25px;border:2px solid #272727;
+ background:repeating-linear-gradient(90deg,#9bc5ce 0 14px,#24363b 14px 18px)
+}
+.house .sign{
+ display:inline-block;margin-top:4px;padding:3px 6px;border-radius:3px;
+ background:#101214dd;font-size:11px;font-weight:900;text-shadow:0 1px 2px #000
+}
+.house .level{font-size:9px;margin-top:2px;color:#f3d36a;font-weight:900}
+.club{width:170px;min-height:122px;background:#5b241f;border-color:#c28a47}
+.club .facade{height:59px;background:linear-gradient(#8d4a37,#4c2924)}
+.club .windows{height:34px;background:repeating-linear-gradient(90deg,#d9a15f 0 18px,#3b1d19 18px 23px)}
+.bar{background:#463022}.bar .facade{background:linear-gradient(#9a6a37,#4c3020)}
+.work{background:#36434a}.work .facade{background:linear-gradient(#75848a,#3b4549)}
+.garage{background:#263c4b}.garage .facade{background:linear-gradient(#58758a,#293e49)}
+.shop{background:#4b3159}.shop .facade{background:linear-gradient(#8a5a91,#4d3155)}
+.town{background:#4b4d4f}.town .facade{background:linear-gradient(#a5a5a5,#606060)}
+
+.signLarge{
+ position:absolute;z-index:18;left:50%;transform:translateX(-50%);
+ top:4px;white-space:nowrap;font-size:13px;font-weight:900;
+ text-shadow:0 2px 3px #000
+}
+
+
+/* richer reference-style city */
+.cityTower{position:absolute;z-index:2;bottom:34%;width:12%;height:25%;background:linear-gradient(90deg,#59636a,#8c979b 45%,#41494e);border:2px solid #414a4f;box-shadow:12px 12px 0 #0003,inset 0 0 20px #0007}
+.cityTower:before{content:"";position:absolute;inset:12px;background:repeating-linear-gradient(0deg,#b8d3dc 0 6px,#34444a 6px 11px),repeating-linear-gradient(90deg,transparent 0 12px,#18252a 12px 15px);opacity:.85}
+.t1{left:0;height:27%}.t2{left:12%;height:39%;width:9%}.t3{left:22%;height:31%;width:15%}.t4{left:39%;height:48%;width:10%}.t5{left:51%;height:34%;width:13%}.t6{left:65%;height:44%;width:9%}.t7{left:75%;height:30%;width:15%}.t8{left:91%;height:40%;width:11%}
+.cityRoadside{position:absolute;z-index:4;background:#9b9b91;border:1px solid #777;box-shadow:inset 0 3px #c8c8c0,inset 0 -3px #666}
+.sideA{left:-5%;width:110%;height:11px;top:calc(42% - 10px)}.sideB{left:-5%;width:110%;height:11px;top:calc(70% - 10px)}
+.streetLamp{position:absolute;z-index:16;width:3px;height:35px;background:#303030}.streetLamp:before{content:"";position:absolute;width:14px;height:14px;border-radius:50%;background:#fff6b5;left:-5px;top:-5px;box-shadow:0 0 14px #fff2}.lamp1{left:20%;top:45%}.lamp2{left:61%;top:45%}.lamp3{left:34%;top:73%}.lamp4{left:78%;top:73%}
+.house .facade{position:relative}.house .facade:after{content:"";position:absolute;left:0;right:0;bottom:0;height:6px;background:#2228}.house .windows{box-shadow:inset 0 0 8px #0008}.house:after{content:"";position:absolute;right:-9px;top:10px;width:9px;height:calc(100% - 10px);background:linear-gradient(90deg,#555,#292929);transform:skewY(-22deg);transform-origin:left top;z-index:-1}.house:before{content:"";position:absolute;left:6px;right:6px;top:-7px;height:7px;background:#333;transform:skewX(-45deg);transform-origin:left bottom;z-index:2}
+.club:after{background:linear-gradient(#52251f,#241513)}
+.motoTraffic{position:absolute;z-index:22;width:74px;height:46px;filter:drop-shadow(0 4px 3px #0009);pointer-events:none}
+.motoTraffic svg{width:100%;height:100%}
+.mt1{top:39%;animation:motoA 8s linear infinite}.mt2{top:43%;animation:motoB 10s linear infinite}.mt3{top:68%;animation:motoA 11s linear infinite reverse}.mt4{top:72%;animation:motoB 9s linear infinite reverse}.mt5{top:53%;animation:motoA 12s linear infinite}
+@keyframes motoA{from{left:-10%}to{left:108%}}@keyframes motoB{from{left:108%}to{left:-10%}}
+
+/* traffic */
+.car{
+ position:absolute;z-index:12;width:34px;height:15px;border-radius:4px;
+ background:#bd2828;box-shadow:0 0 0 2px #1118;
+}
+.car:before,.car:after{content:"";position:absolute;width:7px;height:7px;background:#111;border-radius:50%;bottom:-4px}
+.car:before{left:3px}.car:after{right:3px}
+.car.a{top:43%;animation:trafficA 9s linear infinite}.car.b{top:71%;background:#d7b32c;animation:trafficB 12s linear infinite}
+.car.c{top:54%;background:#4778a7;animation:trafficA 11s linear reverse infinite}
+@keyframes trafficA{from{left:-8%}to{left:108%}}
+@keyframes trafficB{from{left:108%}to{left:-8%}}
+
+.bike{
+ position:absolute;z-index:20;font-size:30px;filter:drop-shadow(0 3px 3px #000);
+ animation:bikeRide 3.5s linear forwards;display:none
+}
+.bike.go{display:block}
+@keyframes bikeRide{from{left:5%;top:66%}to{left:87%;top:46%}}
+
+.hud{
+ position:absolute;z-index:40;left:12px;top:12px;
+ background:#171b20e8;border:1px solid #6b7074;border-radius:9px;padding:9px 12px;
+ box-shadow:0 4px 12px #0008;font-weight:900
+}
+.hud small{display:block;color:#bbb;font-weight:600;margin-top:2px}
+
+.bottom{
+ position:absolute;z-index:50;bottom:10px;left:50%;transform:translateX(-50%);
+ display:flex;gap:7px;padding:7px;background:#161a1ddd;border:1px solid #666;border-radius:10px
+}
+.bottom button{background:linear-gradient(#4c5155,#24282b);color:#fff;border:1px solid #777;border-radius:7px;padding:9px 11px;font-weight:900;font-size:12px}
+
+.panel{
+ position:fixed;z-index:80;right:0;top:62px;bottom:0;width:320px;
+ background:#e9e9e9;color:#222;border-left:1px solid #555;overflow:auto;
+ transform:translateX(0);transition:.2s;box-shadow:-8px 0 25px #0008
+}
+.panelHead{background:#252a2e;color:#fff;padding:12px;font-weight:900;position:sticky;top:0;z-index:5}
+.close{float:right;background:#555;color:#fff;border-radius:6px;padding:5px 8px}
+.cards{display:grid;grid-template-columns:1fr 1fr;gap:6px;padding:8px}
+.card{background:#fff;border:1px solid #ccc;border-radius:7px;padding:8px}.card b{display:block;font-size:18px}
+.actions{display:grid;grid-template-columns:1fr 1fr;gap:6px;padding:8px}
+.actions button{background:#b71919;color:#fff;padding:12px 7px;border-radius:7px;font-weight:900}
+.info{margin:0 8px 8px;padding:10px;background:#222;color:#fff;border-radius:7px;line-height:1.55}
+.log{margin:8px;background:#fff;border-radius:7px;padding:8px;max-height:140px;overflow:auto;font-size:12px}
+.mobileMenu{display:none}
+
+.modal{
+ position:fixed;inset:0;z-index:120;background:#000c;display:none;align-items:center;justify-content:center;padding:15px
+}
+.modalbox{width:min(680px,100%);max-height:90vh;overflow:auto;background:#ececec;color:#222;border-radius:10px;padding:15px}
+.modalbox h2{margin-top:0}.x{float:right;background:#333;color:#fff;border-radius:6px;padding:6px 9px}
+.progress{height:13px;background:#444;border-radius:8px;overflow:hidden;margin:8px 0}.progress i{display:block;height:100%;background:linear-gradient(90deg,#b71919,#e5c45a)}
+.raceTrack{height:220px;background:linear-gradient(#2d3135,#202326);border-radius:9px;position:relative;overflow:hidden;border:2px solid #666}
+.lane{position:absolute;left:0;right:0;border-top:2px dashed #aaa}.rider{position:absolute;width:88px;height:52px;left:2%;filter:drop-shadow(0 3px 3px #000)}.rider svg{width:100%;height:100%}
+.rider.go{animation:race 3s linear forwards}
+@keyframes race{to{left:88%}}
+.districtGrid{display:grid;grid-template-columns:repeat(5,1fr);gap:5px;background:#16191c;padding:8px;border-radius:8px}
+.districtGrid button{min-height:58px;border-radius:4px;background:#333;color:#fff}.districtGrid button.owned{background:#536c45}
+
+@media(max-width:900px){
+ .menuWrap{position:relative;z-index:70}.menuDrop{display:none;position:absolute;top:48px;right:0;width:220px;background:#202020;border:1px solid #555;border-radius:10px;padding:7px;box-shadow:0 10px 30px #000b}.menuDrop.open{display:block}.menuDrop button{display:block;width:100%;margin:4px 0;text-align:left;background:#333}.tutorialHint{position:fixed;left:50%;top:72px;transform:translateX(-50%);z-index:110;background:#171b20ee;border:1px solid #e1bd59;color:#fff;border-radius:10px;padding:10px 14px;box-shadow:0 5px 20px #0009;text-align:center;font-weight:800;max-width:min(92vw,520px)}.setupModal{position:fixed;inset:0;background:linear-gradient(135deg,#050608ee,#170606f5);z-index:100;display:flex;align-items:center;justify-content:center;padding:18px}.setupBox{width:min(560px,100%);background:#171717;color:#eee;border:1px solid #555;border-radius:16px;padding:20px;box-shadow:0 20px 60px #000}.setupBox h1{margin:0 0 8px;font-size:26px}.setupBox p{color:#bbb}.setupGrid{display:grid;grid-template-columns:1fr 1fr;gap:12px}.setupBox label{display:block;font-size:12px;font-weight:800;color:#bbb;margin:8px 0 5px}.setupBox input,.setupBox select{width:100%;padding:12px;border-radius:8px;border:1px solid #555;background:#252525;color:#fff;font-size:16px}.logoPreview{margin:14px auto;width:130px;height:130px;border-radius:22px;background:#b71919;border:4px solid #ddd;display:flex;align-items:center;justify-content:center;flex-direction:column;box-shadow:0 8px 25px #0008}.logoPreview .logoIcon{font-size:55px;line-height:1}.logoPreview .logoText{font-weight:900;font-size:15px;margin-top:5px;max-width:110px;text-align:center;overflow:hidden}.logoChoices{display:flex;gap:8px;flex-wrap:wrap}.logoChoice{font-size:25px;background:#292929;border:2px solid #555;padding:8px 12px;border-radius:10px}.logoChoice.active{border-color:#fff;background:#b71919}.setupStart{width:100%;margin-top:16px;font-size:17px;padding:14px}.profileLogo{width:34px;height:34px;border-radius:8px;display:inline-flex;align-items:center;justify-content:center;margin-right:6px;border:1px solid #fff8}.infoTable{width:100%;border-collapse:collapse;margin-top:10px}.infoTable th,.infoTable td{padding:8px 6px;border-bottom:1px solid #ccc;text-align:left;font-size:13px}.infoTable th{background:#222;color:#fff}.infoUnlocked{color:#17833b;font-weight:800}.infoLocked{color:#9b2020;font-weight:800}.incomeLine{background:#fff;border:1px solid #ddd;border-radius:8px;padding:10px;margin-top:8px}.infoModal .modalbox{max-height:90vh;overflow:auto}
+.top{height:58px;padding:6px 8px}.logo{font-size:14px}.logo small{font-size:7px}.stats{gap:3px}.stat{padding:6px 5px;font-size:10px}.menuBtn{display:block}
+ .game{inset:58px 0 0}.panel{top:58px;width:100%;height:72%;bottom:auto;transform:translateY(105%);border-radius:15px 15px 0 0}.panel.open{transform:translateY(0)}
+ .bottom{bottom:7px;gap:4px}.bottom button{font-size:10px;padding:8px 7px}
+ .house{width:91px;min-height:72px}.club{width:135px;min-height:98px}.house .facade{height:31px}.house .windows{height:18px}.club .facade{height:45px}.club .windows{height:25px}.house .sign{font-size:9px}
+ .hud{left:8px;top:8px;font-size:13px}
+}
+@media(min-width:901px){.mobileMenu{display:block}}
+</style>
 </head>
 <body>
-<div class="top"><div class="logo">🏍️ MC SIMULATOR</div><button class="mobileMenu" onclick="toggleMC()">☰ Mein MC</button><div class="stats">💰 <span id="cash">500</span>$ · ⭐ <span id="rep">0</span> · 👥 <span id="members">2</span></div></div>
-<div class="app">
-<aside class="side left">
-<div class="title">📋 AUFTRÄGE</div>
-<div class="row"><b>🔧 Pannenhilfe</b><div class="small">+80 $ · +2 Ruf</div><br><button onclick="job(80,'Pannenhilfe')">Einheit schicken</button></div>
-<div class="row"><b>🏍️ Ausfahrt</b><div class="small">+120 $ · +3 Ruf</div><br><button onclick="job(120,'Ausfahrt')">Starten</button></div>
-<div class="row"><b>📦 Kurierfahrt</b><div class="small">+150 $ · +3 Ruf</div><br><button onclick="job(150,'Kurierfahrt')">Starten</button></div>
-<div class="title">🏁 RENNEN</div><div class="row"><button onclick="openRace()">Viertelmeile</button></div>
-</aside>
-<main class="map"><div class="ground"></div><div class="road r1"></div><div class="road r2"></div>
-<div class="building clubBuilding l1" id="clubBuilding" style="left:48%;top:55%"><div class="bicon">🏴</div><b>Clubhaus</b><small>Stufe <span id="clubMapLevel">1</span></small></div>
-<div class="building townBuilding" style="left:73%;top:33%"><div class="bicon">🏢</div><b>Stadt</b></div>
-<div class="pin" style="left:30%;top:68%">🏍️</div>
-<div class="building l1" id="barPin" style="left:61%;top:24%;display:none"><div class="bicon">🍺</div><b>Bar</b><small>Stufe <span id="barMapLevel">1</span></small></div>
-<div class="building l1" id="workPin" style="left:83%;top:54%;display:none"><div class="bicon">🔧</div><b>Werkstatt</b><small>Stufe <span id="workMapLevel">1</span></small></div>
-<div class="building l1" id="garagePin" style="left:37%;top:34%;display:none"><div class="bicon">🏍️</div><b>Garage</b><small>Stufe <span id="garageMapLevel">1</span></small></div><div class="bike" id="bike"></div></main>
-<aside class="side right" id="mcPanel"><div class="title">🏴 DEIN MC <button class="closeMC" onclick="toggleMC()">✕</button></div>
-<div class="cards"><div class="card">Kasse<b><span id="cash2">500</span> $</b></div><div class="card">Ruf<b id="rep2">0</b></div><div class="card">Mitglieder<b id="members2">2</b></div><div class="card">Motorräder<b id="bikes">1</b></div></div><div class="levelbox">💰 Geschäfts-Einnahmen: <b id="incomeBonus">+0%</b></div><div class="levelbox">🏗️ <b>Ausbaustufen</b><div>Clubhaus: <span id="clubLevel">1</span>/5</div><div>Bar: <span id="barLevel">0</span>/5</div><div>Werkstatt: <span id="workLevel">0</span>/5</div><div>Garage: <span id="garageLevel">0</span>/5</div></div>
-<div class="actions">
-<button id="clubBtn" onclick="upgrade('club')">🏠 Clubhaus<br><span id="clubCost">350 $</span></button>
-<button onclick="recruit()">👥 Mitglied<br>125 $</button>
-<button id="barBtn" onclick="upgrade('bar')">🍺 Bar<br><span id="barCost">450 $</span></button>
-<button id="workBtn" onclick="upgrade('work')">🔧 Werkstatt<br><span id="workCost">250 $</span></button>
-<button id="garageBtn" onclick="upgrade('garage')">🏍️ Garage<br><span id="garageCost">150 $</span></button>
-<button onclick="claim()">🗺️ Gebiet<br>600 $</button>
-<button class="green" onclick="openRace()">🏁 Rennen<br>fahren</button>
-<button onclick="illegal()">🌙 Schattenauftrag<br>ab Ruf 15</button>
+<div class="top">
+ <div class="logo">🏍️ MC SIMULATOR<small>DEIN WEG ZUR MC-HERRSCHAFT</small></div>
+ <button class="menuBtn" onclick="togglePanel()">☰ MEIN MC</button>
+ <div class="stats">
+  <div class="stat">💰 <span id="cash">500</span>$</div>
+  <div class="stat">⭐ <span id="rep">0</span></div>
+  <div class="stat">👥 <span id="members">2</span></div>
+  <div class="stat">🏍️ <span id="bikes">1</span></div>
+ </div>
 </div>
-<div class="row"><b>📜 Clubchronik</b><div id="log" class="log">Du beginnst ganz unten. Verdiene zuerst Geld mit Rennen und kleinen Aufträgen.</div></div>
-</aside></div>
-<div class="modal" id="raceModal"><div class="modalbox"><button onclick="closeRace()" style="float:right;background:#333">✕</button><h2>🏁 Viertelmeile</h2><p>Gewinne Rennen, um dein Startkapital aufzubauen.</p><div class="track"><div id="r1" class="rider you" style="top:35px"></div><div id="r2" class="rider" style="top:100px"></div></div><p id="raceText">Bereit?</p><button id="raceBtn" onclick="runRace()">🏁 START</button></div></div>
+
+<main class="game">
+ <div class="sky">
+  <i class="buildingFar f1"></i><i class="buildingFar f2"></i><i class="buildingFar f3"></i><i class="buildingFar f4"></i><i class="buildingFar f5"></i><i class="buildingFar f6"></i><i class="buildingFar f7"></i><i class="buildingFar f8"></i><i class="buildingFar f9"></i>
+ </div>
+ <div class="cityTower t1"></div><div class="cityTower t2"></div><div class="cityTower t3"></div><div class="cityTower t4"></div><div class="cityTower t5"></div><div class="cityTower t6"></div><div class="cityTower t7"></div><div class="cityTower t8"></div>
+ <div class="ground"></div>
+ <div class="block p1"></div><div class="block p2"></div><div class="block p3"></div><div class="block p4"></div>
+ <div class="park pka"></div><div class="park pkb"></div>
+ <div class="tree" style="left:7%;top:36%"></div><div class="tree" style="left:14%;top:37%"></div>
+ <div class="tree" style="right:7%;top:78%"></div><div class="tree" style="right:14%;top:80%"></div>
+
+ <div class="street h ha"></div><div class="street h hb"></div><div class="street v va"></div><div class="street v vb"></div>
+ <div class="mark h mha"></div><div class="mark h mhb"></div><div class="mark v mva"></div><div class="mark v mvb"></div>
+ <div class="cityRoadside sideA"></div><div class="cityRoadside sideB"></div><div class="streetLamp lamp1"></div><div class="streetLamp lamp2"></div><div class="streetLamp lamp3"></div><div class="streetLamp lamp4"></div>
+
+ <div class="house club" id="clubBuilding" style="left:47%;top:40%" onclick="openBuilding('club')">
+  <div class="roof"></div><div class="facade"><div class="windows"></div><div class="sign">🏴 DEIN CLUBHAUS</div><div class="level">STUFE <span id="clubMap">1</span> / 100</div></div>
+ </div>
+ <div class="house bar" id="barBuilding" style="left:29%;top:60%;display:none" onclick="openBuilding('bar')">
+  <div class="roof"></div><div class="facade"><div class="windows"></div><div class="sign">🍺 MC BAR</div><div class="level">STUFE <span id="barMap">0</span> / 100</div></div>
+ </div>
+ <div class="house work" id="workBuilding" style="left:70%;top:60%;display:none" onclick="openBuilding('work')">
+  <div class="roof"></div><div class="facade"><div class="windows"></div><div class="sign">🔧 WERKSTATT</div><div class="level">STUFE <span id="workMap">0</span> / 100</div></div>
+ </div>
+ <div class="house garage" id="garageBuilding" style="left:24%;top:45%;display:none" onclick="openBuilding('garage')">
+  <div class="roof"></div><div class="facade"><div class="windows"></div><div class="sign">🏍️ GARAGE</div><div class="level">STUFE <span id="garageMap">0</span> / 100</div></div>
+ </div>
+ <div class="house shop" style="left:83%;top:45%" onclick="say('Dieses Geschäft gehört noch der Stadt. Später kannst du es übernehmen.')">
+  <div class="roof"></div><div class="facade"><div class="windows"></div><div class="sign">🏪 AUTO & SHOP</div><div class="level">STADT</div></div>
+ </div>
+ <div class="house town" style="left:57%;top:70%" onclick="openDistrict()">
+  <div class="roof"></div><div class="facade"><div class="windows"></div><div class="sign">🏛️ RATHAUS</div><div class="level">STADT</div></div>
+ </div>
+
+
+ <div class="motoTraffic mt1"><svg viewBox="0 0 100 60"><circle cx="22" cy="46" r="10" fill="#111" stroke="#bbb" stroke-width="2"/><circle cx="78" cy="46" r="10" fill="#111" stroke="#bbb" stroke-width="2"/><path d="M22 46 L42 30 L63 44 L78 46 M42 30 L50 17 L67 18 L75 30" fill="none" stroke="#d23b2f" stroke-width="5" stroke-linecap="round"/><path d="M38 29 L54 29 L64 36 L48 38Z" fill="#222"/><path d="M52 18 L61 9 L70 10" fill="none" stroke="#222" stroke-width="4"/><circle cx="70" cy="10" r="3" fill="#ddd"/></svg></div>
+ <div class="motoTraffic mt2"><svg viewBox="0 0 100 60"><circle cx="22" cy="46" r="10" fill="#111" stroke="#aaa" stroke-width="2"/><circle cx="78" cy="46" r="10" fill="#111" stroke="#aaa" stroke-width="2"/><path d="M22 46 L42 31 L64 44 L78 46 M42 31 L50 18 L67 18 L76 30" fill="none" stroke="#e0b83d" stroke-width="5" stroke-linecap="round"/><path d="M38 30 L56 29 L65 36 L48 38Z" fill="#151515"/><path d="M52 18 L61 9 L70 10" fill="none" stroke="#222" stroke-width="4"/><circle cx="70" cy="10" r="3" fill="#eee"/></svg></div>
+ <div class="motoTraffic mt3"><svg viewBox="0 0 100 60"><circle cx="22" cy="46" r="10" fill="#111" stroke="#aaa" stroke-width="2"/><circle cx="78" cy="46" r="10" fill="#111" stroke="#aaa" stroke-width="2"/><path d="M22 46 L42 30 L63 44 L78 46 M42 30 L50 17 L67 18 L75 30" fill="none" stroke="#477fb7" stroke-width="5" stroke-linecap="round"/><path d="M38 29 L54 29 L64 36 L48 38Z" fill="#222"/><path d="M52 18 L61 9 L70 10" fill="none" stroke="#222" stroke-width="4"/><circle cx="70" cy="10" r="3" fill="#fff"/></svg></div>
+ <div class="motoTraffic mt4"><svg viewBox="0 0 100 60"><circle cx="22" cy="46" r="10" fill="#111" stroke="#bbb" stroke-width="2"/><circle cx="78" cy="46" r="10" fill="#111" stroke="#bbb" stroke-width="2"/><path d="M22 46 L42 30 L63 44 L78 46 M42 30 L50 17 L67 18 L75 30" fill="none" stroke="#ddd" stroke-width="5" stroke-linecap="round"/><path d="M38 29 L54 29 L64 36 L48 38Z" fill="#222"/><path d="M52 18 L61 9 L70 10" fill="none" stroke="#222" stroke-width="4"/><circle cx="70" cy="10" r="3" fill="#fff"/></svg></div>
+ <div class="motoTraffic mt5"><svg viewBox="0 0 100 60"><circle cx="22" cy="46" r="10" fill="#111" stroke="#bbb" stroke-width="2"/><circle cx="78" cy="46" r="10" fill="#111" stroke="#bbb" stroke-width="2"/><path d="M22 46 L42 30 L63 44 L78 46 M42 30 L50 17 L67 18 L75 30" fill="none" stroke="#8c3aa7" stroke-width="5" stroke-linecap="round"/><path d="M38 29 L54 29 L64 36 L48 38Z" fill="#222"/><path d="M52 18 L61 9 L70 10" fill="none" stroke="#222" stroke-width="4"/><circle cx="70" cy="10" r="3" fill="#fff"/></svg></div>
+
+
+ <div class="hud">🏙️ DEIN STADTVIERTEL<small>Gebiet <span id="territory">1</span> · Klicke auf Gebäude</small></div>
+ <div class="bottom">
+  <button onclick="openBuilding('club')">🏴 MC</button>
+  <button onclick="openBuilding('bar')">🍺 BAR</button>
+  <button onclick="openBuilding('work')">🔧 WERKSTATT</button>
+  <button onclick="openBuilding('garage')">🏍️ GARAGE</button>
+  <button onclick="openDistrict()">🗺️ STADT</button>
+ </div>
+</main>
+
+<aside class="panel" id="panel">
+ <div class="panelHead">🏴 DEIN MC <button class="close" onclick="togglePanel()">✕</button></div>
+ <div class="cards">
+  <div class="card">Kasse<b><span id="cash2">500</span> $</b></div>
+  <div class="card">Ruf<b id="rep2">0</b></div>
+  <div class="card">Mitglieder<b id="members2">2</b></div>
+  <div class="card">Motorräder<b id="bikes2">1</b></div>
+ </div>
+ <div class="info">💰 Geschäftsbonus: <b id="income">+0%</b><br><small>Jede Geschäfts-Stufe bringt +2 % Einnahmen.</small></div>
+ <div class="actions">
+  <button onclick="openBuilding('club')">🏠 Clubhaus</button>
+  <button onclick="recruit()">👥 Mitglied<br>125 $</button>
+  <button onclick="openBuilding('bar')">🍺 Bar</button>
+  <button onclick="openBuilding('work')">🔧 Werkstatt</button>
+  <button onclick="openBuilding('garage')">🏍️ Garage</button>
+  <button onclick="claim()">🗺️ Gebiet<br>600 $</button>
+  <button onclick="openRace()">🏁 Rennen</button>
+  <button onclick="job(150,'Kurierfahrt')">📦 Auftrag</button>
+ </div>
+ <div class="log" id="log">Willkommen im Stadtviertel. 🏴 Clubhaus zuerst ausbauen: Stufe 8 → Garage · Stufe 10 → Werkstatt · Stufe 20 → Bar.</div>
+</aside>
+
+<div class="modal" id="buildingModal"><div class="modalbox">
+ <button class="x" onclick="closeModal('buildingModal')">✕</button>
+ <h2 id="bTitle">Gebäude</h2><p id="bDesc"></p>
+ <div style="background:#222;color:#fff;padding:12px;border-radius:8px">
+  <b>Ausbau</b><div class="progress"><i id="prog"></i></div>
+  Stufe <b id="bLevel">1</b> / 100 · Nächster Ausbau: <b id="bCost">350 $</b><br><br>
+  <button id="upgradeBtn" style="background:#b71919;color:#fff;padding:11px 14px;border-radius:7px" onclick="upgradeCurrent()">🏗️ AUSBAUEN</button>
+ </div>
+ <p>💰 Einnahmenbonus dieses Geschäfts: <b id="bBonus">+0%</b></p>
+ <p>🏙️ Stadtbild: <b id="bVisual">Grundausbau</b></p>
+</div></div>
+
+<div class="setupModal" id="setupModal">
+<div class="setupBox">
+<h1>🏍️ Willkommen beim MC Simulator</h1>
+<p>Bevor dein Spiel beginnt, gründest du deinen eigenen Motorradclub.</p>
+<div class="setupGrid">
+<div>
+<label>Dein MC-Name</label>
+<input id="setupName" maxlength="28" placeholder="z. B. Iron Wolves MC" oninput="updateLogoPreview()">
+</div>
+<div>
+<label>Logo-Farbe</label>
+<select id="setupColor" onchange="updateLogoPreview()">
+<option value="#b71919">Rot</option><option value="#111111">Schwarz</option>
+<option value="#174a8b">Blau</option><option value="#176b3a">Grün</option>
+<option value="#6b1b78">Violett</option><option value="#b07818">Gold</option>
+</select>
+</div>
+</div>
+<label>Dein Club-Logo auswählen</label>
+<div class="logoChoices" id="logoChoices">
+<button type="button" class="logoChoice active" onclick="chooseLogo(this,'🏍️')">🏍️</button>
+<button type="button" class="logoChoice" onclick="chooseLogo(this,'🐺')">🐺</button>
+<button type="button" class="logoChoice" onclick="chooseLogo(this,'💀')">💀</button>
+<button type="button" class="logoChoice" onclick="chooseLogo(this,'🔥')">🔥</button>
+<button type="button" class="logoChoice" onclick="chooseLogo(this,'🦅')">🦅</button>
+<button type="button" class="logoChoice" onclick="chooseLogo(this,'⚔️')">⚔️</button>
+<button type="button" class="logoChoice" onclick="chooseLogo(this,'🐍')">🐍</button>
+<button type="button" class="logoChoice" onclick="chooseLogo(this,'☠️')">☠️</button>
+</div>
+<div class="logoPreview" id="logoPreview"><div class="logoIcon">🏍️</div><div class="logoText">DEIN MC</div></div>
+<button type="button" class="setupStart" id="startGameBtn">🏁 Spielen</button>
+</div></div><div class="modal infoModal" id="infoModal">
+<div class="modalbox">
+<button onclick="closeInfo()" style="float:right;background:#333">✕</button>
+<h2>ℹ️ Infos & Ausbau</h2>
+<p>Hier siehst du, wann neue Gebäude freigeschaltet werden und wie viel Einnahmen die Geschäfte bringen.</p>
+<div class="incomeLine"><b>💰 Geschäftsbonus:</b> Jede ausgebaute Geschäfts-Stufe bringt <b>+2 %</b> auf die Geschäftseinnahmen.</div>
+<table class="infoTable">
+<thead><tr><th>Gebäude</th><th>Freischaltung</th><th>Stufe</th><th>Einnahmen</th></tr></thead>
+<tbody id="infoRows"></tbody>
+</table>
+<h3>🏗️ Ausbauprinzip</h3>
+<p>Das Clubhaus ist der Schlüssel. Je höher deine Clubhaus-Stufe, desto mehr Geschäfte kannst du kaufen und anschließend bis Stufe 100 ausbauen.</p>
+<div id="infoNext"></div>
+</div></div><div class="modal" id="raceModal"><div class="modalbox">
+ <button class="x" onclick="closeModal('raceModal')">✕</button><h2>🏁 Viertelmeile</h2>
+ <p>Vier Motorräder treten gleichzeitig an.</p>
+ <div class="raceTrack">
+  <div class="lane" style="top:25%"></div><div class="lane" style="top:50%"></div><div class="lane" style="top:75%"></div>
+  <div id="r1" class="rider" style="top:5%"><svg viewBox="0 0 100 60"><circle cx="22" cy="46" r="10" fill="#111" stroke="#bbb" stroke-width="2"/><circle cx="78" cy="46" r="10" fill="#111" stroke="#bbb" stroke-width="2"/><path d="M22 46 L42 30 L63 44 L78 46 M42 30 L50 17 L67 18 L75 30" fill="none" stroke="#c9342d" stroke-width="5"/><path d="M38 29 L54 29 L64 36 L48 38Z" fill="#222"/><path d="M52 18 L61 9 L70 10" fill="none" stroke="#222" stroke-width="4"/></svg></div><div id="r2" class="rider" style="top:30%"><svg viewBox="0 0 100 60"><circle cx="22" cy="46" r="10" fill="#111" stroke="#bbb" stroke-width="2"/><circle cx="78" cy="46" r="10" fill="#111" stroke="#bbb" stroke-width="2"/><path d="M22 46 L42 30 L63 44 L78 46 M42 30 L50 17 L67 18 L75 30" fill="none" stroke="#d4b53d" stroke-width="5"/><path d="M38 29 L54 29 L64 36 L48 38Z" fill="#222"/><path d="M52 18 L61 9 L70 10" fill="none" stroke="#222" stroke-width="4"/></svg></div>
+  <div id="r3" class="rider" style="top:55%"><svg viewBox="0 0 100 60"><circle cx="22" cy="46" r="10" fill="#111" stroke="#bbb" stroke-width="2"/><circle cx="78" cy="46" r="10" fill="#111" stroke="#bbb" stroke-width="2"/><path d="M22 46 L42 30 L63 44 L78 46 M42 30 L50 17 L67 18 L75 30" fill="none" stroke="#4e83b9" stroke-width="5"/><path d="M38 29 L54 29 L64 36 L48 38Z" fill="#222"/><path d="M52 18 L61 9 L70 10" fill="none" stroke="#222" stroke-width="4"/></svg></div><div id="r4" class="rider" style="top:80%"><svg viewBox="0 0 100 60"><circle cx="22" cy="46" r="10" fill="#111" stroke="#bbb" stroke-width="2"/><circle cx="78" cy="46" r="10" fill="#111" stroke="#bbb" stroke-width="2"/><path d="M22 46 L42 30 L63 44 L78 46 M42 30 L50 17 L67 18 L75 30" fill="none" stroke="#ddd" stroke-width="5"/><path d="M38 29 L54 29 L64 36 L48 38Z" fill="#222"/><path d="M52 18 L61 9 L70 10" fill="none" stroke="#222" stroke-width="4"/></svg></div>
+ </div>
+ <p id="raceText">Bereit?</p><button id="raceBtn" style="background:#b71919;color:#fff;padding:11px 16px;border-radius:7px" onclick="runRace()">🏁 START</button>
+</div></div>
+
+<div class="modal" id="districtModal"><div class="modalbox">
+ <button class="x" onclick="closeModal('districtModal')">✕</button><h2>🗺️ STADTBEZIRKE</h2>
+ <p>Dein Viertel wächst Schritt für Schritt. Gesicherte Bezirke gehören zu deinem Einfluss.</p>
+ <div class="districtGrid" id="districtGrid"></div>
+</div></div>
+
 <script>
-var g={cash:500,rep:0,members:2,bikes:1,club:1,bar:0,work:0,garage:0,territory:1,races:0,busy:false};
-function $(x){return document.getElementById(x)}
+const KEY='mc-simulator-city-v6';
+const OLD_KEY='mc-simulator-city-v5';
+const UNLOCK={garage:8,work:10,bar:20};
+
+let g=JSON.parse(localStorage.getItem(KEY)||localStorage.getItem(OLD_KEY)||'null')||{
+ cash:500,rep:0,members:2,bikes:1,club:1,bar:0,work:0,garage:0,territory:1,races:0
+};
+let current='club';
+
+const $=id=>document.getElementById(id);
+
+function save(){localStorage.setItem(KEY,JSON.stringify(g))}
 function say(t){alert(t)}
-function toggleMC(){var p=document.getElementById("mcPanel");if(p)p.classList.toggle("open")}
-function log(t){$("log").innerHTML="<div>"+t+"</div>"+$("log").innerHTML}
-function nextCost(k){var base={club:350,bar:450,work:250,garage:150}[k];return Math.round(base*Math.pow(1.055,g[k]))}
-function incomeMultiplier(){return 1+0.02*(g.bar+g.work+g.garage)}
-function businessIncome(base){return Math.round(base*incomeMultiplier())}
-function canUpgrade(k){if(g[k]>=100)return false;if(k!=="club" && g.club<g[k]+1)return false;return g.cash>=nextCost(k)}
+function togglePanel(){$('panel').classList.toggle('open')}
+function log(t){$('log').innerHTML='<div>'+t+'</div>'+$('log').innerHTML}
+function cost(k){
+ let base={club:350,bar:450,work:250,garage:150}[k];
+ return Math.round(base*Math.pow(1.055,g[k]));
+}
+function bonus(){return 2*(g.bar+g.work+g.garage)}
+function isUnlocked(k){return k==='club'||g.club>=UNLOCK[k]}
+function unlockText(k){
+ if(k==='club')return '';
+ return 'Freischaltung: Clubhaus Stufe '+UNLOCK[k];
+}
+
 function render(){
-$("cash").textContent=g.cash;$("cash2").textContent=g.cash;$("rep").textContent=g.rep;$("incomeBonus").textContent="+"+Math.round((incomeMultiplier()-1)*100)+"%";$("rep2").textContent=g.rep;$("members").textContent=g.members;$("members2").textContent=g.members;$("bikes").textContent=g.bikes;
-["club","bar","work","garage"].forEach(function(k){var el=$(k+"Pin");if(el)el.style.display=g[k]>0?"block":"none";var lev=$(k+"Level");if(lev)lev.textContent=g[k];var map=$(k+"MapLevel");if(map)map.textContent=g[k]||1;var building=$(k+"Building");if(building)building.className="building "+(k==="club"?"clubBuilding ":"")+"l"+Math.max(1,g[k]);});
-$("clubBtn").disabled=!canUpgrade("club");$("barBtn").disabled=!canUpgrade("bar");$("workBtn").disabled=!canUpgrade("work");$("garageBtn").disabled=!canUpgrade("garage");
-$("clubCost").textContent=g.club>=100?"MAX":nextCost("club")+" $";$("barCost").textContent=g.bar>=100?"MAX":nextCost("bar")+" $";$("workCost").textContent=g.work>=100?"MAX":nextCost("work")+" $";$("garageCost").textContent=g.garage>=100?"MAX":nextCost("garage")+" $";
+ ['cash','cash2'].forEach(x=>$(x).textContent=g.cash);
+ ['rep','rep2'].forEach(x=>$(x).textContent=g.rep);
+ ['members','members2'].forEach(x=>$(x).textContent=g.members);
+ ['bikes','bikes2'].forEach(x=>$(x).textContent=g.bikes);
+ $('income').textContent='+'+bonus()+'%';
+ $('territory').textContent=g.territory;
+
+ // Neue Fortschrittslogik: Gebäude werden erst ab der jeweiligen
+ // Clubhaus-Stufe verfügbar.
+ ['bar','work','garage'].forEach(k=>{
+   if(g.club<UNLOCK[k] && g[k]>0) g[k]=0;
+ });
+
+ ['club','bar','work','garage'].forEach(k=>{
+   const el=$(k+'Building');
+   const visible=(k==='club'||(isUnlocked(k)&&g[k]>0));
+   el.style.display=visible?'block':'none';
+   $(k+'Map').textContent=g[k]||0;
+   const scale=1+Math.min(.48,g[k]*.0048);
+   el.style.transform='translate(-50%,-50%) scale('+scale+')';
+ });
+
+ // Buttons auf dem MC-Panel sperren, bis das Clubhaus die nötige Stufe hat.
+ ['bar','work','garage'].forEach(k=>{
+   const btn=document.querySelector('.actions button[onclick="openBuilding(\''+k+'\')"]');
+   if(btn){
+     const locked=!isUnlocked(k);
+     btn.classList.toggle('locked',locked);
+     btn.title=locked?unlockText(k):'Gebäude öffnen';
+   }
+ });
+
+ save();
 }
-function job(v,n){if(g.busy)return say("Motorrad ist noch unterwegs.");g.busy=true;var b=$("bike");b.className="bike";void b.offsetWidth;b.className="bike go";log("🏍️ "+n+" gestartet.");setTimeout(function(){g.cash+=v;g.rep+=2;g.busy=false;log("✅ "+n+" erledigt: +"+v+" $.");render()},4000)}
-function buy(k,c){upgrade(k)}
-function upgrade(k){
-if(g[k]>=100)return say("Diese Anlage ist bereits Stufe 5.");
-if(k!=="club" && g.club<g[k]+1)return say("Zuerst muss das Clubhaus mindestens auf Stufe "+(g[k]+1)+" sein.");
-var c=nextCost(k);if(g.cash<c)return say("Nicht genug Geld. Ausbau kostet "+c+" $.");
-g.cash-=c;g[k]++;g.rep+=3;
-var names={club:"Clubhaus",bar:"Bar",work:"Werkstatt",garage:"Garage"};
-log("🏗️ "+names[k]+" auf Stufe "+g[k]+" ausgebaut. Geschäfte bringen jetzt insgesamt +"+Math.round((incomeMultiplier()-1)*100)+"% Einnahmen.");
-render()
+
+var profile={name:"",logo:"🏍️",color:"#b71919"};
+try{var savedProfile=JSON.parse(localStorage.getItem("mcProfile")||"null");if(savedProfile)profile=savedProfile}catch(e){}
+function chooseLogo(btn,icon){
+ profile.logo=icon;
+ document.querySelectorAll(".logoChoice").forEach(function(x){x.classList.remove("active")});
+ btn.classList.add("active");
+ updateLogoPreview();
 }
-function recruit(){if(g.cash<125)return say("Nicht genug Geld.");g.cash-=125;g.members++;g.rep+=2;log("👤 Mitglied aufgenommen.");render()}
-function claim(){if(g.rep<10)return say("Du brauchst 10 Ruf.");if(g.cash<600)return say("Nicht genug Geld.");g.cash-=600;g.territory++;g.rep+=5;log("🗺️ Gebiet gesichert.");render()}
-function illegal(){if(g.rep<15||g.club<2)return say("Ab Ruf 15 und Clubhaus Stufe 2.");if(g.cash<300)return say("Nicht genug Geld.");g.cash-=300;if(Math.random()>.3){g.cash+=750;g.rep+=5;log("🌙 Schattenauftrag erfolgreich: +750 $.")}else{g.rep=Math.max(0,g.rep-5);log("🚨 Schattenauftrag fehlgeschlagen: -5 Ruf")}render()}
-function openRace(){$("raceModal").style.display="flex";$("raceBtn").disabled=false;$("raceText").textContent="Bereit?"}
-function closeRace(){$("raceModal").style.display="none"}
-function runRace(){$("raceBtn").disabled=true;$("r1").className="rider you go";$("r2").className="rider go";setTimeout(function(){var win=Math.random()>.25;var prize=win?50+g.races*25:10;g.cash+=prize;g.rep+=win?2:0;g.races++;$("raceText").textContent=win?"🏆 GEWONNEN! +"+prize+" $":"😬 Verloren – +10 $";log((win?"🏆 Rennen gewonnen: ":"🏁 Rennen beendet: ")+prize+" $.");render()},3000)}
+function updateLogoPreview(){
+ var p=$("logoPreview");if(!p)return;
+ p.style.background=$("setupColor").value;
+ p.querySelector(".logoIcon").textContent=profile.logo;
+ p.querySelector(".logoText").textContent=($("setupName").value||"DEIN MC").toUpperCase();
+}
+function startNewClub(){
+ var name=$("setupName").value.trim();
+ if(name.length<2){alert("Bitte gib deinem MC einen Namen.");return}
+ profile.name=name;profile.color=$("setupColor").value;
+ localStorage.setItem("mcProfile",JSON.stringify(profile));
+
+ // Neuer Spielstart: zuerst das Einführungsrennen.
+ g.cash=500;g.rep=0;g.members=2;g.bikes=1;
+ g.club=0;g.bar=0;g.work=0;g.garage=0;g.territory=1;g.races=0;
+ g.firstRaceDone=false;g.tutorialStep=1;
+ save();applyProfile();
+ $("setupModal").style.display="none";
+ render();
+ log("🏴 "+profile.name+" wurde gegründet. Willkommen, Präsident.");
+
+ setTimeout(function(){
+   showTutorial("🏁 Dein erstes Rennen","Gewinne dein erstes Rennen. Danach bekommst du dein Startkapital für das Clubhaus.");
+   setTimeout(openIntroRace,450);
+ },180);
+}
+function applyProfile(){
+ if(!profile.name)return;
+ var title=$("clubIdentity");if(title)title.innerHTML='<span class="profileLogo" style="background:'+profile.color+'">'+profile.logo+'</span>'+profile.name;
+ var pn=$("panelClubName");if(pn)pn.textContent=profile.name;
+ var pl=$("panelClubLogo");if(pl)pl.textContent=profile.logo;
+ var cb=$("clubBuilding");if(cb)cb.querySelector(".bicon").textContent=profile.logo;
+}
+function ensureSetup(){
+ updateLogoPreview();
+ if(profile.name){$("setupModal").style.display="none";applyProfile()}
+}
+function showTutorial(title,text){
+ var old=document.getElementById("tutorialHint");if(old)old.remove();
+ var d=document.createElement("div");d.id="tutorialHint";d.className="tutorialHint";
+ d.innerHTML="<div>"+title+"</div><div style='font-size:12px;color:#bbb;margin-top:3px'>"+text+"</div>";
+ document.body.appendChild(d);
+}
+function clearTutorial(){
+ var d=document.getElementById("tutorialHint");if(d)d.remove();
+}
+function openIntroRace(){
+ if(g.firstRaceDone)return;
+ $("raceModal").style.display="flex";
+ $("raceBtn").disabled=false;
+ $("raceText").textContent="Dein erstes Rennen – gewinne, um dein Clubhaus freizuschalten.";
+ $("raceBtn").textContent="🏁 ERSTES RENNEN STARTEN";
+ $("raceBtn").onclick=runRace;
+}
+function finishIntroRace(win,prize){
+ g.firstRaceDone=true;
+ g.cash+=prize;
+ g.rep+=win?5:1;
+ g.tutorialStep=2;
+ save();render();
+ $("raceText").textContent=win?"🏆 Geschafft! Dein Startkapital ist bereit.":"🏁 Rennen beendet. Du bekommst trotzdem ein kleines Startkapital.";
+ $("raceBtn").textContent="Weiter";
+ $("raceBtn").disabled=false;
+ $("raceBtn").onclick=function(){
+   closeModal("raceModal");
+   $("raceBtn").onclick=runRace;
+   $("raceBtn").textContent="🏁 START";
+   showTutorial("🏴 Jetzt dein Clubhaus","Baue dein erstes Clubhaus. Danach geht es Schritt für Schritt weiter.");
+   setTimeout(function(){openBuilding("club")},150);
+ };
+}
+function toggleMenu(){$('menuDrop').classList.toggle('open')}
+function openInfo(){
+ $('menuDrop').classList.remove('open');
+ renderInfo();
+ $('infoModal').style.display='flex';
+}
+function closeInfo(){$('infoModal').style.display='none'}
+function renderInfo(){
+ const rows=[
+  {k:'club',icon:'🏴',name:'Clubhaus',unlock:1,base:0},
+  {k:'garage',icon:'🏍️',name:'Garage',unlock:8,base:150},
+  {k:'work',icon:'🔧',name:'Werkstatt',unlock:10,base:250},
+  {k:'bar',icon:'🍺',name:'Bar',unlock:20,base:450}
+ ];
+ $('infoRows').innerHTML=rows.map(r=>{
+   const lv=g[r.k]||0;
+   const ready=r.k==='club'||g.club>=r.unlock;
+   const income=r.k==='club'?'–':(lv>0?businessIncome(r.k):'noch nicht gebaut');
+   return '<tr><td>'+r.icon+' <b>'+r.name+'</b></td>'+
+     '<td class="'+(ready?'infoUnlocked':'infoLocked')+'">'+
+     (r.unlock===1?'Start':('Clubhaus Stufe '+r.unlock))+'</td>'+
+     '<td>'+lv+'/100</td><td>'+income+'</td></tr>';
+ }).join('');
+
+ const next=rows.filter(r=>r.k!=='club' && g.club<r.unlock)[0];
+ $('infoNext').innerHTML=next
+   ? '<div class="incomeLine">🔓 Nächste Freischaltung: <b>'+next.name+
+     '</b> bei Clubhaus Stufe <b>'+next.unlock+'</b>.</div>'
+   : '<div class="incomeLine">🏆 Alle aktuellen Gebäude sind freigeschaltet.</div>';
+}
+function businessIncome(k){
+ const base={bar:100,work:80,garage:40}[k]||0;
+ const lv=g[k]||0;
+ return Math.round(base*lv*(1+bonus()/100))+' $ / Abrechnung';
+}
+
+function openBuilding(k){
+ if(k!=='club'&&!isUnlocked(k)){
+   return say(
+     (k==='garage'?'Die Garage wird ab Clubhaus Stufe 8 freigeschaltet.':
+      k==='work'?'Die Werkstatt wird ab Clubhaus Stufe 10 freigeschaltet.':
+      'Die Bar wird ab Clubhaus Stufe 12 freigeschaltet.')
+   );
+ }
+ if(k!=='club'&&g[k]===0){
+   // Gebäude ist freigeschaltet, aber noch nicht gebaut.
+   current=k;
+   const names={club:'🏴 DEIN CLUBHAUS',bar:'🍺 MC BAR',work:'🔧 WERKSTATT',garage:'🏍️ GARAGE'};
+   const desc={
+     club:'Dein Hauptquartier. Mit höheren Stufen wächst dein MC und schaltest neue Möglichkeiten frei.',
+     bar:'Dein MC-Geschäft. Jede Stufe erhöht den gesamten Geschäftsbonus um 2 %.',
+     work:'Deine Werkstatt für Motorräder. Ab Clubhaus Stufe 10 kannst du sie aufbauen.',
+     garage:'Deine Garage. Ab Clubhaus Stufe 8 kannst du sie aufbauen und mehr Motorräder unterbringen.'
+   };
+   $('bTitle').textContent=names[k];
+   $('bDesc').textContent=desc[k]+' '+unlockText(k)+'.';
+   updateBuilding();
+   $('buildingModal').style.display='flex';
+   return;
+ }
+ current=k;
+ const names={club:'🏴 DEIN CLUBHAUS',bar:'🍺 MC BAR',work:'🔧 WERKSTATT',garage:'🏍️ GARAGE'};
+ const desc={
+   club:'Dein Hauptquartier. Mit höheren Stufen wächst dein MC und schaltest neue Möglichkeiten frei.',
+   bar:'Dein MC-Geschäft. Jede Stufe erhöht den gesamten Geschäftsbonus um 2 %.',
+   work:'Deine Werkstatt für Motorräder. Mit jedem Ausbau wächst sie sichtbar auf der Karte.',
+   garage:'Deine Garage. Mehr Ausbau bedeutet mehr Stellplätze und eine größere Anlage.'
+ };
+ $('bTitle').textContent=names[k];
+ $('bDesc').textContent=desc[k]+(k==='club'?'':' '+unlockText(k)+'.');
+ updateBuilding();
+ $('buildingModal').style.display='flex';
+}
+
+function updateBuilding(){
+ let lv=g[current];
+ const unlocked=isUnlocked(current);
+ $('bLevel').textContent=lv;
+ $('bCost').textContent=lv>=100?'MAX':cost(current)+' $';
+ $('prog').style.width=Math.max(1,lv)+'%';
+ $('bBonus').textContent='+'+(lv*2)+'%';
+ $('bVisual').textContent=
+   lv===0?'Noch nicht gebaut':
+   lv<10?'kleines Gebäude':
+   lv<25?'ausgebautes Gebäude':
+   lv<50?'große Anlage':
+   lv<75?'komplexer MC-Standort':'riesige Anlage';
+
+ $('upgradeBtn').textContent=
+   lv===0?'🏗️ BAU STARTEN':'🏗️ AUSBAUEN';
+
+ $('upgradeBtn').disabled=
+   !unlocked || lv>=100 || g.cash<cost(current);
+}
+
+function upgradeCurrent(){
+ let k=current;
+
+ if(k!=='club'&&!isUnlocked(k)){
+   return say(
+     k==='garage'?'Garage ab Clubhaus Stufe 8.':
+     k==='work'?'Werkstatt ab Clubhaus Stufe 10.':
+     'Bar ab Clubhaus Stufe 20.'
+   );
+ }
+
+ if(g[k]>=100)return say('Stufe 100 erreicht.');
+
+ let c=cost(k);
+ if(g.cash<c)return say('Nicht genug Geld. Du brauchst '+c+' $.');
+
+ g.cash-=c;
+ g[k]++;
+ g.rep+=3;
+
+ const names={club:'CLUBHAUS',bar:'BAR',work:'WERKSTATT',garage:'GARAGE'};
+ log('🏗️ '+names[k]+' auf Stufe '+g[k]+' ausgebaut.');
+
+ if(k==='club' && g.club===1 && g.tutorialStep===2){
+   g.tutorialStep=3;
+   clearTutorial();
+   log('✅ Dein Clubhaus steht! Nächster Meilenstein: Stufe 8 → Garage.');
+   setTimeout(function(){showTutorial("🏍️ Nächster Meilenstein","Baue dein Clubhaus bis Stufe 8. Dann kannst du die Garage bauen.");},250);
+ }
+
+ // Hinweise genau beim Freischalten der nächsten Gebäude.
+ if(k==='club' && g.club===8){
+   log('🏍️ GARAGE FREIGESCHALTET! Ab jetzt kannst du deine Garage bauen.');
+ }
+ if(k==='club' && g.club===10){
+   log('🔧 WERKSTATT FREIGESCHALTET! Jetzt kannst du deine Werkstatt bauen.');
+ }
+ if(k==='club' && g.club===20){
+   log('🍺 BAR FREIGESCHALTET! Jetzt kannst du deine Bar bauen.');
+ }
+
+ render();
+ updateBuilding();
+}
+function recruit(){if(g.cash<125)return say('Nicht genug Geld.');g.cash-=125;g.members++;g.rep+=2;log('👤 Neues Mitglied aufgenommen.');render()}
+function claim(){if(g.rep<10)return say('Du brauchst 10 Ruf.');if(g.cash<600)return say('Nicht genug Geld.');g.cash-=600;g.territory++;g.rep+=5;log('🗺️ Neuer Bezirk gesichert.');render()}
+function job(v,n){g.cash+=v;g.rep+=2;log('🏍️ '+n+' erledigt: +'+v+' $.');render()}
+function closeModal(id){$(id).style.display='none'}
+function openRace(){
+ if(!g.firstRaceDone){openIntroRace();return}
+ $("raceModal").style.display="flex";
+ $("raceBtn").disabled=false;
+ $("raceText").textContent="Bereit?";
+ $("raceBtn").textContent="🏁 START";
+ $("raceBtn").onclick=runRace;
+}
+function runRace(){
+ $("raceBtn").disabled=true;
+ ['r1','r2','r3','r4'].forEach((id,i)=>{
+   let e=$(id);e.className='rider';e.style.left='2%';void e.offsetWidth;
+   e.className='rider go';e.style.animationDelay=(i*.06)+'s';
+ });
+ setTimeout(function(){
+   let win=Math.random()>.25,prize=win?100:50;
+   if(!g.firstRaceDone){
+     finishIntroRace(win,prize);
+     return;
+   }
+   g.cash+=prize;g.rep+=win?2:0;g.races++;
+   $("raceText").textContent=win?"🏆 GEWONNEN! +"+prize+" $":"🏁 Verloren – +"+prize+" $";
+   log("🏁 Rennen: "+(win?"Sieg":"Niederlage")+" · +"+prize+" $.");
+   render();
+ },3100);
+}
+
+function openDistrict(){
+ $('districtModal').style.display='flex';let grid=$('districtGrid');grid.innerHTML='';
+ for(let i=0;i<25;i++){let b=document.createElement('button');b.className=i<g.territory?'owned':'';b.innerHTML=i<g.territory?'🏴<br>Bezirk '+(i+1):'🔒';grid.appendChild(b)}
+}
 render();
-</script></body></html>
+</script>
+</body>
+</html>
+
+<script>
+/* Sicherer Spielstart: erst nach dem vollständigen Laden der Seite verbinden. */
+(function(){
+  function initGame(){
+    if(typeof render==="function") render();
+    if(typeof applyProfile==="function") applyProfile();
+    if(typeof ensureSetup==="function") ensureSetup();
+
+    var btn=document.getElementById("startGameBtn");
+    if(btn){
+      btn.addEventListener("click",function(ev){
+        ev.preventDefault();
+        if(typeof startNewClub==="function"){
+          startNewClub();
+        }else{
+          alert("Der Spielstart konnte nicht geladen werden. Bitte die Seite einmal neu laden.");
+        }
+      });
+    }
+  }
+  if(document.readyState==="loading"){
+    document.addEventListener("DOMContentLoaded",initGame);
+  }else{
+    initGame();
+  }
+})();
+</script
