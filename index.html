@@ -16,11 +16,21 @@ button:disabled{opacity:.4}.top{height:58px;background:#b71919;display:flex;alig
 .cards{display:grid;grid-template-columns:1fr 1fr;gap:6px;padding:8px}.card{background:#f3f3f3;color:#222;padding:8px;border:1px solid #ddd;border-radius:6px}.card b{display:block;font-size:18px}
 .actions{display:grid;grid-template-columns:1fr 1fr;gap:6px;padding:8px;background:#eee}.actions button{min-height:54px}.log{max-height:150px;overflow:auto;font-size:12px;color:#555}
 .modal{position:fixed;inset:0;background:#000c;z-index:50;display:none;align-items:center;justify-content:center;padding:15px}.modalbox{background:#eee;color:#222;border-radius:10px;width:min(600px,100%);padding:15px}.track{height:150px;background:#333;border-radius:8px;position:relative;overflow:hidden}.rider{position:absolute;width:42px;height:15px;background:#111;border-radius:8px;left:5px}.rider.you{background:#b71919}.rider.go{animation:race 2.7s linear forwards}@keyframes race{to{left:88%}}
-@media(max-width:900px){.app{display:block;height:auto}.left{display:none}.right{border:0}.map{height:calc(100vh - 58px);min-height:500px}.right{position:fixed;left:0;right:0;bottom:0;z-index:30;max-height:65vh;border-radius:14px 14px 0 0;box-shadow:0 -8px 25px #0008}.right .title{position:sticky;top:0;z-index:2}.actions{grid-template-columns:1fr 1fr}.stats{font-size:12px}}
-</style>
+@media(max-width:900px){
+.app{display:block;height:auto}.left{display:none}
+.map{height:calc(100vh - 58px);min-height:500px}
+.right{display:none;position:fixed;left:0;right:0;bottom:0;z-index:30;max-height:72vh;border:0;border-radius:14px 14px 0 0;box-shadow:0 -8px 25px #0008}
+.right.open{display:block}
+.right .title{position:sticky;top:0;z-index:2}
+.actions{grid-template-columns:1fr 1fr}.stats{font-size:12px}
+.mobileMenu{display:block;margin-left:auto;background:#222}
+.closeMC{float:right;background:#555;padding:6px 9px}
+}
+@media(min-width:901px){.mobileMenu,.closeMC{display:none}}
+.building{position:absolute;z-index:6;transform:translate(-50%,-50%);min-width:82px;padding:7px 9px;border-radius:8px;background:linear-gradient(#eee,#bbb);color:#171717;text-align:center;box-shadow:0 8px 12px #0008;border:2px solid #333;transition:.3s}.building .bicon{font-size:28px;line-height:28px}.building b{display:block;font-size:12px}.building small{font-size:10px}.clubBuilding{background:linear-gradient(#c93b31,#72211c);color:#fff;border-color:#42100d}.townBuilding{background:linear-gradient(#f1f1f1,#a5a5a5)}.building.l2{transform:translate(-50%,-50%) scale(1.12);min-width:96px}.building.l3{transform:translate(-50%,-50%) scale(1.28);min-width:112px}.building.l4{transform:translate(-50%,-50%) scale(1.45);min-width:130px}.building.l5{transform:translate(-50%,-50%) scale(1.65);min-width:150px}.levelbox{margin:0 8px 8px;padding:10px;border-radius:7px;background:#222;color:#eee;line-height:1.6}.levelbox span{font-weight:900;color:#ffcf55}.actions button span{font-size:11px}.levelbox b{color:#ffcf55}.levelbox div{font-size:13px}</style>
 </head>
 <body>
-<div class="top"><div class="logo">🏍️ MC SIMULATOR</div><div class="stats">💰 <span id="cash">500</span>$ · ⭐ <span id="rep">0</span> · 👥 <span id="members">2</span></div></div>
+<div class="top"><div class="logo">🏍️ MC SIMULATOR</div><button class="mobileMenu" onclick="toggleMC()">☰ Mein MC</button><div class="stats">💰 <span id="cash">500</span>$ · ⭐ <span id="rep">0</span> · 👥 <span id="members">2</span></div></div>
 <div class="app">
 <aside class="side left">
 <div class="title">📋 AUFTRÄGE</div>
@@ -30,17 +40,20 @@ button:disabled{opacity:.4}.top{height:58px;background:#b71919;display:flex;alig
 <div class="title">🏁 RENNEN</div><div class="row"><button onclick="openRace()">Viertelmeile</button></div>
 </aside>
 <main class="map"><div class="ground"></div><div class="road r1"></div><div class="road r2"></div>
-<div class="pin club" style="left:48%;top:55%">🏴</div><div class="pin" style="left:73%;top:33%">🔧</div><div class="pin" style="left:30%;top:68%">🏍️</div>
-<div class="pin" id="barPin" style="left:61%;top:24%;display:none">🍺</div><div class="pin" id="workPin" style="left:83%;top:54%;display:none">🔧</div><div class="pin" id="garagePin" style="left:37%;top:34%;display:none">🏍️</div><div class="bike" id="bike"></div></main>
-<aside class="side right">
-<div class="title">🏴 DEIN MC</div>
-<div class="cards"><div class="card">Kasse<b><span id="cash2">500</span> $</b></div><div class="card">Ruf<b id="rep2">0</b></div><div class="card">Mitglieder<b id="members2">2</b></div><div class="card">Motorräder<b id="bikes">1</b></div></div>
+<div class="building clubBuilding l1" id="clubBuilding" style="left:48%;top:55%"><div class="bicon">🏴</div><b>Clubhaus</b><small>Stufe <span id="clubMapLevel">1</span></small></div>
+<div class="building townBuilding" style="left:73%;top:33%"><div class="bicon">🏢</div><b>Stadt</b></div>
+<div class="pin" style="left:30%;top:68%">🏍️</div>
+<div class="building l1" id="barPin" style="left:61%;top:24%;display:none"><div class="bicon">🍺</div><b>Bar</b><small>Stufe <span id="barMapLevel">1</span></small></div>
+<div class="building l1" id="workPin" style="left:83%;top:54%;display:none"><div class="bicon">🔧</div><b>Werkstatt</b><small>Stufe <span id="workMapLevel">1</span></small></div>
+<div class="building l1" id="garagePin" style="left:37%;top:34%;display:none"><div class="bicon">🏍️</div><b>Garage</b><small>Stufe <span id="garageMapLevel">1</span></small></div><div class="bike" id="bike"></div></main>
+<aside class="side right" id="mcPanel"><div class="title">🏴 DEIN MC <button class="closeMC" onclick="toggleMC()">✕</button></div>
+<div class="cards"><div class="card">Kasse<b><span id="cash2">500</span> $</b></div><div class="card">Ruf<b id="rep2">0</b></div><div class="card">Mitglieder<b id="members2">2</b></div><div class="card">Motorräder<b id="bikes">1</b></div></div><div class="levelbox">💰 Geschäfts-Einnahmen: <b id="incomeBonus">+0%</b></div><div class="levelbox">🏗️ <b>Ausbaustufen</b><div>Clubhaus: <span id="clubLevel">1</span>/5</div><div>Bar: <span id="barLevel">0</span>/5</div><div>Werkstatt: <span id="workLevel">0</span>/5</div><div>Garage: <span id="garageLevel">0</span>/5</div></div>
 <div class="actions">
-<button onclick="upgrade()">🏠 Clubhaus<br>350 $</button>
+<button id="clubBtn" onclick="upgrade('club')">🏠 Clubhaus<br><span id="clubCost">350 $</span></button>
 <button onclick="recruit()">👥 Mitglied<br>125 $</button>
-<button id="barBtn" onclick="buy('bar',450)">🍺 Bar<br>450 $</button>
-<button id="workBtn" onclick="buy('work',250)">🔧 Werkstatt<br>250 $</button>
-<button id="garageBtn" onclick="buy('garage',150)">🏍️ Garage<br>150 $</button>
+<button id="barBtn" onclick="upgrade('bar')">🍺 Bar<br><span id="barCost">450 $</span></button>
+<button id="workBtn" onclick="upgrade('work')">🔧 Werkstatt<br><span id="workCost">250 $</span></button>
+<button id="garageBtn" onclick="upgrade('garage')">🏍️ Garage<br><span id="garageCost">150 $</span></button>
 <button onclick="claim()">🗺️ Gebiet<br>600 $</button>
 <button class="green" onclick="openRace()">🏁 Rennen<br>fahren</button>
 <button onclick="illegal()">🌙 Schattenauftrag<br>ab Ruf 15</button>
@@ -49,14 +62,32 @@ button:disabled{opacity:.4}.top{height:58px;background:#b71919;display:flex;alig
 </aside></div>
 <div class="modal" id="raceModal"><div class="modalbox"><button onclick="closeRace()" style="float:right;background:#333">✕</button><h2>🏁 Viertelmeile</h2><p>Gewinne Rennen, um dein Startkapital aufzubauen.</p><div class="track"><div id="r1" class="rider you" style="top:35px"></div><div id="r2" class="rider" style="top:100px"></div></div><p id="raceText">Bereit?</p><button id="raceBtn" onclick="runRace()">🏁 START</button></div></div>
 <script>
-var g={cash:500,rep:0,members:2,bikes:1,club:1,bar:false,work:false,garage:false,territory:1,races:0,busy:false};
+var g={cash:500,rep:0,members:2,bikes:1,club:1,bar:0,work:0,garage:0,territory:1,races:0,busy:false};
 function $(x){return document.getElementById(x)}
 function say(t){alert(t)}
+function toggleMC(){var p=document.getElementById("mcPanel");if(p)p.classList.toggle("open")}
 function log(t){$("log").innerHTML="<div>"+t+"</div>"+$("log").innerHTML}
-function render(){$("cash").textContent=g.cash;$("cash2").textContent=g.cash;$("rep").textContent=g.rep;$("rep2").textContent=g.rep;$("members").textContent=g.members;$("members2").textContent=g.members;$("bikes").textContent=g.bikes;$("barPin").style.display=g.bar?"flex":"none";$("workPin").style.display=g.work?"flex":"none";$("garagePin").style.display=g.garage?"flex":"none";$("barBtn").disabled=g.bar||g.cash<450;$("workBtn").disabled=g.work||g.cash<250;$("garageBtn").disabled=g.garage||g.cash<150}
+function nextCost(k){var base={club:350,bar:450,work:250,garage:150}[k];return Math.round(base*Math.pow(1.055,g[k]))}
+function incomeMultiplier(){return 1+0.02*(g.bar+g.work+g.garage)}
+function businessIncome(base){return Math.round(base*incomeMultiplier())}
+function canUpgrade(k){if(g[k]>=100)return false;if(k!=="club" && g.club<g[k]+1)return false;return g.cash>=nextCost(k)}
+function render(){
+$("cash").textContent=g.cash;$("cash2").textContent=g.cash;$("rep").textContent=g.rep;$("incomeBonus").textContent="+"+Math.round((incomeMultiplier()-1)*100)+"%";$("rep2").textContent=g.rep;$("members").textContent=g.members;$("members2").textContent=g.members;$("bikes").textContent=g.bikes;
+["club","bar","work","garage"].forEach(function(k){var el=$(k+"Pin");if(el)el.style.display=g[k]>0?"block":"none";var lev=$(k+"Level");if(lev)lev.textContent=g[k];var map=$(k+"MapLevel");if(map)map.textContent=g[k]||1;var building=$(k+"Building");if(building)building.className="building "+(k==="club"?"clubBuilding ":"")+"l"+Math.max(1,g[k]);});
+$("clubBtn").disabled=!canUpgrade("club");$("barBtn").disabled=!canUpgrade("bar");$("workBtn").disabled=!canUpgrade("work");$("garageBtn").disabled=!canUpgrade("garage");
+$("clubCost").textContent=g.club>=100?"MAX":nextCost("club")+" $";$("barCost").textContent=g.bar>=100?"MAX":nextCost("bar")+" $";$("workCost").textContent=g.work>=100?"MAX":nextCost("work")+" $";$("garageCost").textContent=g.garage>=100?"MAX":nextCost("garage")+" $";
+}
 function job(v,n){if(g.busy)return say("Motorrad ist noch unterwegs.");g.busy=true;var b=$("bike");b.className="bike";void b.offsetWidth;b.className="bike go";log("🏍️ "+n+" gestartet.");setTimeout(function(){g.cash+=v;g.rep+=2;g.busy=false;log("✅ "+n+" erledigt: +"+v+" $.");render()},4000)}
-function buy(k,c){if(g[k])return;if(g.cash<c)return say("Nicht genug Geld.");g.cash-=c;g[k]=true;g.rep+=3;log("🏗️ "+k+" gebaut.");render()}
-function upgrade(){if(g.cash<350)return say("Nicht genug Geld.");g.cash-=350;g.club=2;g.rep+=5;log("🏠 Clubhaus ausgebaut.");render()}
+function buy(k,c){upgrade(k)}
+function upgrade(k){
+if(g[k]>=100)return say("Diese Anlage ist bereits Stufe 5.");
+if(k!=="club" && g.club<g[k]+1)return say("Zuerst muss das Clubhaus mindestens auf Stufe "+(g[k]+1)+" sein.");
+var c=nextCost(k);if(g.cash<c)return say("Nicht genug Geld. Ausbau kostet "+c+" $.");
+g.cash-=c;g[k]++;g.rep+=3;
+var names={club:"Clubhaus",bar:"Bar",work:"Werkstatt",garage:"Garage"};
+log("🏗️ "+names[k]+" auf Stufe "+g[k]+" ausgebaut. Geschäfte bringen jetzt insgesamt +"+Math.round((incomeMultiplier()-1)*100)+"% Einnahmen.");
+render()
+}
 function recruit(){if(g.cash<125)return say("Nicht genug Geld.");g.cash-=125;g.members++;g.rep+=2;log("👤 Mitglied aufgenommen.");render()}
 function claim(){if(g.rep<10)return say("Du brauchst 10 Ruf.");if(g.cash<600)return say("Nicht genug Geld.");g.cash-=600;g.territory++;g.rep+=5;log("🗺️ Gebiet gesichert.");render()}
 function illegal(){if(g.rep<15||g.club<2)return say("Ab Ruf 15 und Clubhaus Stufe 2.");if(g.cash<300)return say("Nicht genug Geld.");g.cash-=300;if(Math.random()>.3){g.cash+=750;g.rep+=5;log("🌙 Schattenauftrag erfolgreich: +750 $.")}else{g.rep=Math.max(0,g.rep-5);log("🚨 Schattenauftrag fehlgeschlagen: -5 Ruf")}render()}
